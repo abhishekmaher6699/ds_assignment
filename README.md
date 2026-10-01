@@ -1,63 +1,45 @@
 # Hotel Booking Cancellation Prediction
 
-## 1. Project Overview
+An end-to-end machine learning project that predicts whether a hotel reservation will be cancelled using the Hotel Booking Demand dataset.
 
-This project uses machine learning to predict whether a hotel booking will be cancelled.
+## Live Demo
 
-The project compares four classification algorithms:
+**Streamlit App:** https://hotel-cancellation-app.streamlit.app/
 
-- Logistic Regression
-- Decision Tree
-- Random Forest
-- Support Vector Machine (SVM)
+**GitHub Repository:** https://github.com/abhishekmaher6699/ds_assignment
 
-Random Forest is further optimized using GridSearchCV.
-
-A Streamlit application provides an interactive interface for making predictions.
-
----
-
-## 2. Problem Statement
+## Project Overview
 
 Hotel cancellations can affect room availability, revenue planning, and operational decisions.
 
-The objective of this project is to build a machine learning classification system that predicts whether a hotel reservation will be cancelled based on information available about the booking.
-
----
-
-## 3. Dataset
-
-The project uses the **Hotel Booking Demand** dataset.
-
-The dataset contains hotel reservation records with information about:
-
-- Hotel type
-- Lead time
-- Arrival date
-- Length of stay
-- Number of guests
-- Meal plan
-- Market segment
-- Distribution channel
-- Previous cancellations
-- Deposit type
-- Customer type
-- Average daily rate
-- Special requests
-- Room information
-
-### Target Variable
-
-`is_canceled`
+This project builds a binary classification system to predict:
 
 - `0` → Booking was not cancelled
 - `1` → Booking was cancelled
 
----
+Four classification models were evaluated:
 
-## 4. Machine Learning Workflow
+1. Logistic Regression
+2. Decision Tree
+3. Random Forest
+4. Support Vector Machine (`LinearSVC`)
 
-The project follows this workflow:
+Random Forest was additionally optimized using **GridSearchCV with 5-fold cross-validation**.
+
+The trained models are integrated into an interactive Streamlit application.
+
+## Dataset
+
+The project uses the **Hotel Booking Demand** dataset, containing reservation information such as hotel type, lead time, arrival date, length of stay, guests, meal plan, market segment, distribution channel, previous cancellations, deposit type, customer type, ADR, and special requests.
+
+### Target Variable
+
+| Value | Meaning |
+|---|---|
+| `0` | Booking was not cancelled |
+| `1` | Booking was cancelled |
+
+## Machine Learning Workflow
 
 ```text
 Dataset
@@ -72,157 +54,144 @@ Preprocessing
    ↓
 Train/Test Split
    ↓
-Four Classification Models
+Model Training
    ↓
 Model Evaluation
    ↓
 Random Forest Hyperparameter Tuning
    ↓
-Final Model
+Feature Importance
    ↓
-Streamlit Application
+Model Serialization
+   ↓
+Streamlit Deployment
 ```
 
----
-
-## 5. Data Preprocessing
+## Data Preprocessing
 
 The preprocessing stage includes:
 
 - Duplicate removal
 - Missing-value handling
-- Removal of invalid booking records
+- Invalid-record handling
 - Numerical feature imputation
 - Numerical feature scaling
 - Categorical feature imputation
 - One-hot encoding
 
-The preprocessing operations are implemented using Scikit-learn pipelines to keep training and prediction transformations consistent.
+Scikit-learn pipelines keep training and prediction transformations consistent.
 
----
+### Data Leakage Prevention
 
-## 6. Feature Engineering
+The following fields are excluded from model training:
 
-Additional features are created:
+- `reservation_status`
+- `reservation_status_date`
+- `agent`
+- `company`
+
+The first two contain information associated with the final reservation outcome.
+
+## Feature Engineering
 
 ### Total Guests
 
 ```text
-adults + children + babies
+total_guests = adults + children + babies
 ```
 
 ### Total Nights
 
 ```text
-stays_in_weekend_nights + stays_in_week_nights
+total_nights = stays_in_weekend_nights + stays_in_week_nights
 ```
 
 ### Total Stay Cost
 
 ```text
-adr × total_nights
+total_stay_cost = adr × total_nights
 ```
 
----
-
-## 7. Data Leakage Prevention
-
-`reservation_status` and `reservation_status_date` are excluded from model training because they contain information directly associated with the final reservation outcome.
-
-`agent` and `company` identifiers are also excluded from the predictive feature set.
-
----
-
-## 8. Models
+## Models
 
 ### Logistic Regression
-
-Used as a linear classification baseline.
+Linear classification baseline.
 
 ### Decision Tree
-
-Used to model non-linear relationships using decision rules.
+Non-linear classification using decision rules.
 
 ### Random Forest
-
-An ensemble of decision trees used for robust non-linear classification.
+Ensemble of decision trees for non-linear classification.
 
 ### Support Vector Machine
+A `LinearSVC` implementation is used for computational efficiency with the large one-hot-encoded dataset.
 
-A linear SVM implementation (`LinearSVC`) is used because it is considerably more computationally efficient for the large, one-hot-encoded dataset.
+### Tuned Random Forest
+Random Forest hyperparameters were optimized using GridSearchCV with 5-fold cross-validation and F1 scoring.
 
----
+## Model Results
 
-## 9. Evaluation Metrics
+| Model | Accuracy | Precision | Recall | F1 Score |
+|---|---:|---:|---:|---:|
+| Logistic Regression | 0.7955 | 0.6806 | 0.4831 | 0.5651 |
+| Decision Tree | 0.7929 | 0.6223 | 0.6283 | 0.6253 |
+| Random Forest | 0.8393 | 0.7728 | 0.5890 | 0.6685 |
+| SVM | 0.7937 | 0.6868 | 0.4590 | 0.5503 |
+| **Tuned Random Forest** | **0.8401** | **0.7708** | **0.5959** | **0.6722** |
 
-Each model is evaluated using:
+### Tuned Random Forest
 
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- Confusion Matrix
+- **Accuracy:** 84.01%
+- **Precision:** 77.08%
+- **Recall:** 59.59%
+- **F1 Score:** 67.22%
 
-The models are compared using a final performance table and visualization.
+Compared with the original Random Forest:
 
----
+- Accuracy: `0.8393 → 0.8401`
+- F1 Score: `0.6685 → 0.6722`
 
-## 10. Hyperparameter Tuning
+## Feature Importance
 
-Random Forest is optimized using `GridSearchCV` with 5-fold cross-validation.
+Highest reported feature importances:
 
-The search explores:
+| Feature | Importance |
+|---|---:|
+| `lead_time` | 0.110873 |
+| `total_stay_cost` | 0.072963 |
+| `adr` | 0.072675 |
+| `arrival_date_day_of_month` | 0.058408 |
+| `total_of_special_requests` | 0.054437 |
+| `arrival_date_week_number` | 0.052803 |
+| `country_PRT` | 0.040808 |
+| `total_nights` | 0.033432 |
+| `stays_in_week_nights` | 0.031792 |
+| `market_segment_Online TA` | 0.025404 |
 
-- Number of trees
-- Maximum tree depth
-- Minimum samples required for splitting
-- Minimum samples required at a leaf
+These are model-derived importance values and should not be interpreted as causal relationships.
 
-F1-score is used as the GridSearchCV scoring metric.
+## Streamlit Application
 
----
-
-## 11. Feature Importance
-
-Feature importance from the tuned Random Forest is calculated to identify which transformed features contribute most strongly to the model's predictions.
-
----
-
-## 12. Streamlit Application
-
-The Streamlit application allows a user to:
+The deployed application allows users to:
 
 1. Select a machine learning model.
 2. Enter hotel booking information.
 3. Submit the booking details.
 4. Receive a cancellation prediction.
-5. View the estimated cancellation probability.
+5. View an estimated cancellation probability.
 
-Run the application using:
+**Live Application:** https://hotel-cancellation-app.streamlit.app/
 
-```bash
-streamlit run app.py
-```
-
-The application will normally be available at:
+## Project Structure
 
 ```text
-http://localhost:8501
-```
-
----
-
-## 13. Project Structure
-
-```text
-hotel-booking-ml/
-│
+ds_assignment/
 ├── hotel_bookings.csv
 ├── hotel_booking_cancellation.ipynb
 ├── app.py
 ├── requirements.txt
 ├── README.md
-│
+├── report.pdf
 └── models/
     ├── logistic_regression.pkl
     ├── decision_tree.pkl
@@ -231,30 +200,53 @@ hotel-booking-ml/
     └── tuned_random_forest.pkl
 ```
 
----
+The Random Forest model files are stored using joblib compression to reduce their size for deployment.
 
-## 14. Installation
-
-Install the required packages:
+## Installation
 
 ```bash
+git clone https://github.com/abhishekmaher6699/ds_assignment.git
+cd ds_assignment
 pip install -r requirements.txt
-```
-
-Run the notebook:
-
-```bash
-jupyter notebook hotel_booking_cancellation.ipynb
-```
-
-Run the Streamlit application:
-
-```bash
 streamlit run app.py
 ```
 
----
+The local application will normally be available at:
 
-## 15. Conclusion
+```text
+http://localhost:8501
+```
 
-This project demonstrates an end-to-end machine learning workflow for hotel booking cancellation prediction, from data preprocessing and exploratory analysis to model comparison, hyperparameter tuning, feature analysis, and interactive deployment using Streamlit.
+## Technologies Used
+
+- Python
+- Pandas
+- NumPy
+- Scikit-learn
+- Matplotlib
+- Seaborn
+- Joblib
+- Streamlit
+- Jupyter Notebook
+- Git & GitHub
+
+## Evaluation
+
+Models were evaluated using:
+
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- Confusion Matrix
+
+EDA included cancellation analysis, correlation analysis, and feature-importance analysis.
+
+## Conclusion
+
+This project demonstrates a complete machine learning workflow for hotel booking cancellation prediction, covering data preparation, exploratory analysis, feature engineering, model training, evaluation, hyperparameter tuning, feature analysis, model serialization, and interactive deployment using Streamlit.
+
+## Project Links
+
+- **Live Demo:** https://hotel-cancellation-app.streamlit.app/
+- **GitHub:** https://github.com/abhishekmaher6699/ds_assignment
