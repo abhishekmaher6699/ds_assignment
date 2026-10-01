@@ -23,13 +23,13 @@ def load_models():
             MODEL_DIR / "decision_tree.pkl"
         ),
         "Random Forest": joblib.load(
-            MODEL_DIR / "random_forest.pkl"
+            MODEL_DIR / "random_forest_compressed.pkl"
         ),
         "SVM": joblib.load(
             MODEL_DIR / "svm.pkl"
         ),
         "Tuned Random Forest": joblib.load(
-            MODEL_DIR / "tuned_random_forest.pkl"
+            MODEL_DIR / "tuned_random_forest_compressed.pkl"
         ),
     }
 
